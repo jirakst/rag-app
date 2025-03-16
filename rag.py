@@ -76,4 +76,5 @@ text_input = st.text_input("Enter a question")
 button = st.button("Search")
 
 if button:
-    st.write(agent_executor.invoke({"input": text_input}))
+    response = agent_executor.invoke({"input": text_input})
+    st.write(response["output"])
