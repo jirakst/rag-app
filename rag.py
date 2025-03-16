@@ -23,9 +23,9 @@ from langchain_core.messages import BaseMessage
 
 # Set LangSmith environment variables
 os.environ["LANGCHAIN_TRACING"] = "true"
-os.environ["LANGCHAIN_ENDPOINT"] = os.getenv("LANGCHAIN_ENDPOINT")
-os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
-os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGCHAIN_PROJECT")
+os.environ["LANGCHAIN_ENDPOINT"] = st.secrets.get("LANGCHAIN_ENDPOINT", os.environ.get("LANGCHAIN_ENDPOINT"))
+os.environ["LANGCHAIN_API_KEY"] = st.secrets.get("LANGCHAIN_API_KEY", os.environ.get("LANGCHAIN_API_KEY"))
+os.environ["LANGCHAIN_PROJECT"] = st.secrets.get("LANGCHAIN_PROJECT", os.environ.get("LANGCHAIN_PROJECT"))
 
 # 4. Streamlit app
 st.title("LangChain RAG Demo")
