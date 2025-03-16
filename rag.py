@@ -40,7 +40,7 @@ if not openai_api_key:
     st.stop()
 
 # 1. Load Retriever
-loader = PyPDFLoader('data/CV.pdf') # TextLoader("data/test.txt")
+loader = PyPDFLoader('data/CV.pdf')
 docs = loader.load()
 text_splitter = RecursiveCharacterTextSplitter()
 documents = text_splitter.split_documents(docs)
@@ -53,8 +53,9 @@ retriever = vector.as_retriever()
 # 2. Create Tools
 retriever_tool = create_retriever_tool(
     retriever,
-    "john_doe_cv",
-    "Search for information about John Doe's Curriculum Vitae (CV) including education, experience, skills, etc.",
+    "Curriculum_Vitae_CV",
+    "Search for information about Stanislav Jirak's Curriculum Vitae (CV) including personal information, \
+        education, experience, skills etc.",
 )
 # search = TavilySearchResults()
 tools = [retriever_tool]
