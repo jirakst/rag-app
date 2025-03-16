@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 from typing import List
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
+import streamlit as st
 
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
@@ -19,7 +17,30 @@ from langchain.agents import AgentExecutor
 from langchain.pydantic_v1 import BaseModel, Field
 from langchain_core.messages import BaseMessage
 
-import streamlit as st
+# Remove dotenv loading since we'll use Streamlit secrets
+# from dotenv import load_dotenv
+# load_dotenv()
+
+# 4. Streamlit app
+st.title("LangChain RAG Demo")
+st.write("This is a simple RAG demo using LangChain.")
+
+# Add sidebar for API key input
+with st.sidebar:
+    st.header("Configuration")
+    user_api_key = st.text_input("Enter your OpenAI API key", type="password")
+    
+# Determine which API key to use (user input takes precedence)
+if user_api_key:
+    openai_api_key = user_api_key
+else:
+    # Fallback to secrets or environment variable
+    openai_api_key = st.secrets.get("OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY"))
+
+# Check if we have an API key before proceeding
+if not openai_api_key:
+    st.warning("Please enter an OpenAI API key in the sidebar to use this app.")
+    st.stop()
 
 # 1. Load Retriever
 # loader = WebBaseLoader("https://docs.smith.langchain.com/user_guide")
@@ -27,7 +48,9 @@ loader = TextLoader("data/test.txt")
 docs = loader.load()
 text_splitter = RecursiveCharacterTextSplitter()
 documents = text_splitter.split_documents(docs)
-embeddings = OpenAIEmbeddings()
+
+# Use the determined API key
+embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 vector = FAISS.from_documents(documents, embeddings)
 retriever = vector.as_retriever()
 
@@ -43,14 +66,10 @@ tools = [retriever_tool]
 
 # 3. Create Agent
 prompt = hub.pull("hwchase17/openai-functions-agent")
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+# Use the determined API key
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0, openai_api_key=openai_api_key)
 agent = create_openai_functions_agent(llm, tools, prompt)
 agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-
-
-# 4. Streamlit app
-st.title("LangChain RAG Demo")
-st.write("This is a simple RAG demo using LangChain.")
 
 # 5. Add a text input and a button
 text_input = st.text_input("Enter a question")
