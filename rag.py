@@ -21,21 +21,18 @@ from langchain_core.messages import BaseMessage
 # from dotenv import load_dotenv
 # load_dotenv()
 
+# Set LangSmith environment variables
+os.environ["LANGCHAIN_TRACING"] = "true"
+os.environ["LANGCHAIN_ENDPOINT"] = os.getenv("LANGCHAIN_ENDPOINT")
+os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_API_KEY")
+os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGCHAIN_PROJECT")
+
 # 4. Streamlit app
 st.title("LangChain RAG Demo")
 st.write("This is a simple RAG demo using LangChain.")
 
-# Add sidebar for API key input
-with st.sidebar:
-    st.header("Configuration")
-    user_api_key = st.text_input("Enter your OpenAI API key", type="password")
-    
-# Determine which API key to use (user input takes precedence)
-if user_api_key:
-    openai_api_key = user_api_key
-else:
-    # Fallback to secrets or environment variable
-    openai_api_key = st.secrets.get("OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY"))
+# Fallback to environment variable if secrets fail
+openai_api_key = st.secrets.get("OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY"))
 
 # Check if we have an API key before proceeding
 if not openai_api_key:
@@ -43,8 +40,7 @@ if not openai_api_key:
     st.stop()
 
 # 1. Load Retriever
-# loader = WebBaseLoader("https://docs.smith.langchain.com/user_guide")
-loader = TextLoader("data/test.txt")
+loader = PyPDFLoader('data/CV.pdf') # TextLoader("data/test.txt")
 docs = loader.load()
 text_splitter = RecursiveCharacterTextSplitter()
 documents = text_splitter.split_documents(docs)
